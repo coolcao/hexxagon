@@ -1,0 +1,53 @@
+.board {
+  display: grid;
+  grid-template-columns: repeat(5, 176.19px);
+  justify-content: center;
+  margin-top: 60px;
+  gap: 0.5px;
+}
+
+.hex {
+  // color: #fff;
+  // justify-content: center;
+  // display: flex;
+  // align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1px;
+  position: relative;
+  height: 100px;
+  width: 115.46px;
+  /* 正六边形的高 = 宽 * √3 / 2 */
+  // background-color: purple;
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+}
+
+.hex-inner {
+  margin-top: 1px;
+  position: relative;
+  height: 80px;
+  width: 92.368px;
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+}
+
+// 偶数行，向右，向上偏移
+.hex:nth-child(10n - 4),
+.hex:nth-child(10n - 3),
+.hex:nth-child(10n - 2),
+.hex:nth-child(10n - 1),
+.hex:nth-child(10n - 0) {
+  margin-left: 88.095px;
+  margin-top: -50px;
+  // background-color: green;
+}
+
+
+// 奇数行，只向上偏移
+.hex:nth-child(10n + 1),
+.hex:nth-child(10n + 2),
+.hex:nth-child(10n + 3),
+.hex:nth-child(10n + 4),
+.hex:nth-child(10n + 5) {
+  margin-top: -50px;
+}

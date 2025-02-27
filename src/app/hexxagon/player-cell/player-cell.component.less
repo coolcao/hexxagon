@@ -1,0 +1,43 @@
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.no-select {
+  user-select: none; /* 现代浏览器 */
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+}
+
+.red-ball {
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(#ff0000, #9d0000);
+  background-size: 100% 100%;
+  background-position: 50% 50%;
+  border-radius: 40%;
+  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.5);
+}
+
+.blue-ball {
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(#1e76fa, #0000ff);
+  background-size: 100% 100%;
+  background-position: 50% 50%;
+  border-radius: 50%;
+  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.5);
+}
+
+.dark {
+  .red-ball {
+    background: radial-gradient(#ff0000, #9d0000);
+  }
+  .blue-ball {
+    background: radial-gradient(#1e76fa, #0000ff);
+  }
+}

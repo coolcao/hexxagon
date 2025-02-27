@@ -1,0 +1,8 @@
+<div *ngIf="cell" (click)="click()"
+  class="flex justify-center items-center text-white text-xl w-full h-full dark:text-gray-800"
+  [class.cursor-pointer]="showPointer()"
+  [class.cursor-default]="!showPointer()"
+  [ngClass]="getBgClass()"
+  >
+  <app-player-cell [id]="cell.id" [player]="cell.player"></app-player-cell>
+</div>

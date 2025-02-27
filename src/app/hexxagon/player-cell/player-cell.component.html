@@ -1,0 +1,4 @@
+<span class="flex justify-center items-center w-full h-full no-select bg-transparent"
+  [@showBall]="player == 1?'red':(player==2?'blue':'hidden')"
+  [ngClass]="{ 'red-ball': player == 1, 'blue-ball': player == 2 }">
+</span>
