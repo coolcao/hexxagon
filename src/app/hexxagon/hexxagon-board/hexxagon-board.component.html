@@ -1,60 +1,99 @@
-<main class="w-screen h-screen dark:bg-gray-800">
-  <div class="w-full h-full flex justify-center dark:bg-gray-800">
-    <div class="w-9/12 flex justify-center items-center">
-      <div class="flex flex-col board">
-        @for (items of cells(); track $index; let row = $index) { @for (item of items; track $index) {
-        <div class="hex" [ngClass]="{ 'bg-purple-400 dark:bg-gray-200': item.show}">
-          <div class="hex-inner">
-            <app-cell [cell]="item" (onClick)="clickCell($event)"></app-cell>
-          </div>
-        </div>
-        } }
+<main class="h-screen w-screen dark:bg-gray-800">
+  <div class="flex h-full w-full justify-center dark:bg-gray-800">
+    <div>{{ myId() }}: {{ myColor() }}</div>
+    <div>{{ peerId() }}: {{ peerColor() }}</div>
+    <div class="flex w-9/12 items-center justify-center">
+      <div class="board flex flex-col">
+        @for (items of cells(); track $index; let row = $index) {
+          @for (item of items; track $index) {
+            <div
+              class="hex"
+              [ngClass]="{ 'bg-purple-400 dark:bg-gray-200': item.show }"
+            >
+              <div class="hex-inner">
+                <app-cell
+                  [cell]="item"
+                  (onClick)="clickCell($event)"
+                ></app-cell>
+              </div>
+            </div>
+          }
+        }
       </div>
     </div>
-    <div class="w-3/12 flex flex-col justify-center items-center dark:text-gray-200">
-      <div class="w-full h-20 flex items-center">
+    <div
+      class="flex w-3/12 flex-col items-center justify-center dark:text-gray-200"
+    >
+      <div class="flex h-20 w-full items-center">
         <span>当前选手：</span>
-        <div class="w-20 h-20">
+        <div class="h-20 w-20">
           <app-player-cell [player]="currentPlayer()"></app-player-cell>
         </div>
       </div>
-      <div class="w-full flex flex-col justify-start items-start my-5">
+      <div class="my-5 flex w-full flex-col items-start justify-start">
         <div>当前局势：</div>
-        <div class="w-4/5 h-6 flex justify-evenly items-center">
-          <span>{{player1Count()}}</span>
-          <span>{{player2Count()}}</span>
+        <div class="flex h-6 w-4/5 items-center justify-evenly">
+          <span>{{ redCount() }}</span>
+          <span>{{ blueCount() }}</span>
         </div>
-        <div class="w-4/5 h-6  rounded-full bg-blue-600 dark:bg-blue-500">
-          <div class="h-6 bg-red-600 dark:bg-red-500 rounded-l-full " [ngStyle]="{'width': player1Percent()+'%'}"></div>
+        <div class="h-6 w-4/5 rounded-full bg-blue-600 dark:bg-blue-500">
+          <div
+            class="h-6 rounded-l-full bg-red-600 dark:bg-red-500"
+            [ngStyle]="{ width: redPrecent() + '%' }"
+          ></div>
         </div>
       </div>
-      <div class="w-full flex items-center my-5">
-        <button (click)="resetBoard()" type="button"
-          class="text-white bg-blue-700 hover:bg-blue-800  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">重玩游戏</button>
+      <div class="my-5 flex w-full items-center">
+        <button
+          (click)="resetBoard()"
+          type="button"
+          class="me-2 mb-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          重玩游戏
+        </button>
       </div>
     </div>
   </div>
-  <div *ngIf="winner() !== -1"
-    class="w-full h-full flex flex-col justify-center items-center absolute left-0 top-0 bg-red-300 backdrop-blur bg-opacity-50 dark:bg-gray-800 dark:bg-opacity-50">
-    @if (winner() == 1) {
-    <span class="text-3xl">🎉🎉🎉</span>
-    <div class="w-32 h-32">
-      <app-player-cell [player]="1"></app-player-cell>
-    </div>
-    <span class="text-4xl dark:text-gray-200">获胜</span>
-    } @else if (winner() == 2) {
-    <span class="text-3xl">🎉🎉🎉 </span>
-    <div class="w-32 h-32">
-      <app-player-cell [player]="2"></app-player-cell>
-    </div>
-    <span class="text-4xl dark:text-gray-200">获胜</span>
-    } @else if (winner() == 0) {
-    <div class="text-4xl">👍旗鼓相当👍</div>
+  <div
+    *ngIf="winner() !== null"
+    class="bg-opacity-50 dark:bg-opacity-50 absolute top-0 left-0 flex h-full w-full flex-col items-center justify-center bg-red-300 backdrop-blur dark:bg-gray-800"
+  >
+    @if (winner() == myId()) {
+      <span class="text-3xl">🎉🎉🎉</span>
+      <div class="h-32 w-32">
+        <app-player-cell [player]="CellColor.RED"></app-player-cell>
+      </div>
+      <span class="text-4xl dark:text-gray-200">获胜</span>
+    } @else if (winner() == peerId()) {
+      <span class="text-3xl">🎉🎉🎉 </span>
+      <div class="h-32 w-32">
+        <app-player-cell [player]="CellColor.BLUE"></app-player-cell>
+      </div>
+      <span class="text-4xl dark:text-gray-200">获胜</span>
+    } @else if (winner() == "") {
+      <div class="text-4xl">👍旗鼓相当👍</div>
     }
-    <button (click)="resetBoard()" type="button"
-      class="mt-10 text-white bg-blue-700 hover:bg-blue-800  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">重玩游戏</button>
+    <button
+      (click)="resetBoard()"
+      type="button"
+      class="me-2 mt-10 mb-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+    >
+      重玩游戏
+    </button>
   </div>
-  <audio #clickPlayer src="assets/audio/hexxagon/click.mp3" class="hidden"></audio>
-  <audio #movePlayer src="assets/audio/hexxagon/move.mp3" class="hidden"></audio>
-  <audio #winnerPlayer src="assets/audio/hexxagon/winner.mp3" class="hidden"></audio>
+  <audio
+    #clickPlayer
+    src="assets/audio/hexxagon/click.mp3"
+    class="hidden"
+  ></audio>
+  <audio
+    #movePlayer
+    src="assets/audio/hexxagon/move.mp3"
+    class="hidden"
+  ></audio>
+  <audio
+    #winnerPlayer
+    src="assets/audio/hexxagon/winner.mp3"
+    class="hidden"
+  ></audio>
 </main>

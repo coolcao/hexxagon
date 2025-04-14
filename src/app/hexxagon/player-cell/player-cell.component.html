@@ -1,4 +1,15 @@
-<span class="flex justify-center items-center w-full h-full no-select bg-transparent"
-  [@showBall]="player == 1?'red':(player==2?'blue':'hidden')"
-  [ngClass]="{ 'red-ball': player == 1, 'blue-ball': player == 2 }">
+<span
+  class="no-select flex h-full w-full items-center justify-center bg-transparent"
+  [@showBall]="
+    player == CellColor.RED
+      ? 'red'
+      : player == CellColor.BLUE
+        ? 'blue'
+        : 'hidden'
+  "
+  [ngClass]="{
+    'red-ball': player == CellColor.RED,
+    'blue-ball': player == CellColor.BLUE,
+  }"
+>
 </span>

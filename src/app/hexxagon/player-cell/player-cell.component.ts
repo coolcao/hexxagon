@@ -1,5 +1,6 @@
 import { animate, keyframes, state, style, transition, trigger } from '@angular/animations';
 import { Component, Input } from '@angular/core';
+import { CellColor } from '../hexxagon.type';
 const frames = [
   style({ transform: 'translate3d(-1px, 0, 0)', offset: 0.1 }),
   style({ transform: 'translate3d(2px, 0, 0)', offset: 0.2 }),
@@ -63,8 +64,9 @@ const frames = [
   ]
 })
 export class PlayerCellComponent {
+  CellColor = CellColor;
   @Input()
-  player: 1 | 2 | undefined = undefined;
+  player: CellColor | undefined = undefined;
 
   @Input()
   id: number = 0;

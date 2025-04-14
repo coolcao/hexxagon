@@ -1,53 +1,88 @@
+// 定义数学关系
+@hex-width-ratio: 1.1547005; // 2/√3
+@board-ratio: 1.7619; // 水平间距系数
+
+.hex-board-mixin(@hex-height, @inner-offset: 10px) {
+  // 计算衍生变量
+  @hex-width: @hex-height * @hex-width-ratio;
+  @board-repeat: @hex-height * @board-ratio;
+  @margin-top: -(@hex-height / 2);
+  @inner-height: @hex-height - @inner-offset;
+  @inner-width: @inner-height * @hex-width-ratio;
+
+  // 应用样式
+  .hex {
+    height: @hex-height;
+    width: @hex-width;
+  }
+
+  .hex-inner {
+    height: @inner-height;
+    width: @inner-width;
+  }
+
+  // 偶数行偏移（使用calc保留单位）
+  .hex:nth-child(10n + 6),
+  .hex:nth-child(10n + 7),
+  .hex:nth-child(10n + 8),
+  .hex:nth-child(10n + 9),
+  .hex:nth-child(10n + 10) {
+    margin-left:~"calc(@{board-repeat} / 2)";
+    margin-top: @margin-top;
+  }
+
+  // 所有行向上偏移
+  .hex:nth-child(n + 6) {
+    margin-top: @margin-top;
+  }
+
+  .board {
+    grid-template-columns: repeat(5, @board-repeat);
+  }
+}
+
+// 默认样式（sm）
+.hex-board-mixin(30px, 5px);
+// 响应式断点（参数保持不变）
+@media (min-width: 640px) {
+  .hex-board-mixin(40px, 8px);
+}
+
+@media (min-width: 768px) {
+  .hex-board-mixin(50px, 10px);
+}
+
+@media (min-width: 1024px) {
+  .hex-board-mixin(60px, 10px);
+}
+
+@media (min-width: 1280px) {
+  .hex-board-mixin(80px, 15px);
+}
+
+@media (min-width: 1536px) {
+  .hex-board-mixin(90px, 20px);
+}
+
+// 公共样式保持不变
 .board {
   display: grid;
-  grid-template-columns: repeat(5, 176.19px);
   justify-content: center;
   margin-top: 60px;
   gap: 0.5px;
 }
 
 .hex {
-  // color: #fff;
-  // justify-content: center;
-  // display: flex;
-  // align-items: center;
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 1px;
   position: relative;
-  height: 100px;
-  width: 115.46px;
-  /* 正六边形的高 = 宽 * √3 / 2 */
-  // background-color: purple;
   clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
 }
 
 .hex-inner {
   margin-top: 1px;
   position: relative;
-  height: 80px;
-  width: 92.368px;
   clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
-}
-
-// 偶数行，向右，向上偏移
-.hex:nth-child(10n - 4),
-.hex:nth-child(10n - 3),
-.hex:nth-child(10n - 2),
-.hex:nth-child(10n - 1),
-.hex:nth-child(10n - 0) {
-  margin-left: 88.095px;
-  margin-top: -50px;
-  // background-color: green;
-}
-
-
-// 奇数行，只向上偏移
-.hex:nth-child(10n + 1),
-.hex:nth-child(10n + 2),
-.hex:nth-child(10n + 3),
-.hex:nth-child(10n + 4),
-.hex:nth-child(10n + 5) {
-  margin-top: -50px;
 }

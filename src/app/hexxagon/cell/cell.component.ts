@@ -40,11 +40,11 @@ export class CellComponent {
     }
 
     // 相邻单元格
-    if (this.cell.first && !this.cell.player) {
+    if (this.cell.first && !this.cell.color) {
       return 'bg-green-600 dark:bg-green-300';
     }
     // 第二组相邻单元格
-    if (this.cell.second && !this.cell.player) {
+    if (this.cell.second && !this.cell.color) {
       return 'bg-green-400 dark:bg-green-200';
     }
     // 默认样式
