@@ -1,19 +1,30 @@
-<main class="h-screen w-screen dark:bg-gray-800">
-  <div class="flex h-full w-full justify-center dark:bg-gray-800">
-    <div>{{ myId() }}: {{ myColor() }}</div>
-    <div>{{ peerId() }}: {{ peerColor() }}</div>
-    <div class="flex w-9/12 items-center justify-center">
+<main
+  class="flex h-screen w-screen items-center justify-center bg-slate-50 p-4 dark:bg-slate-900"
+>
+  <div class="flex h-full w-full max-w-6xl flex-col md:flex-row md:gap-6">
+    <!-- 左侧棋盘区域 -->
+    <div
+      class="flex flex-1 items-center justify-center rounded-2xl bg-white p-2 shadow-xl md:p-4 dark:bg-slate-800"
+    >
       <div class="board flex flex-col">
         @for (items of cells(); track $index; let row = $index) {
           @for (item of items; track $index) {
             <div
               class="hex"
-              [ngClass]="{ 'bg-purple-400 dark:bg-gray-200': item.show }"
+              [ngClass]="{
+                'bg-sky-50/60 dark:bg-sky-900/20':
+                  item.show && currentPlayer() === CellColor.BLUE,
+                'bg-rose-50/60 dark:bg-rose-900/20':
+                  item.show && currentPlayer() === CellColor.RED,
+              }"
             >
-              <div class="hex-inner">
+              <div
+                class="hex-inner transition-all duration-200 hover:scale-[1.08]"
+              >
                 <app-cell
                   [cell]="item"
                   (onClick)="clickCell($event)"
+                  class="cursor-pointer hover:brightness-105"
                 ></app-cell>
               </div>
             </div>
@@ -21,79 +32,150 @@
         }
       </div>
     </div>
+
+    <!-- 右侧信息面板 -->
     <div
-      class="flex w-3/12 flex-col items-center justify-center dark:text-gray-200"
+      class="mt-4 w-full rounded-2xl bg-white p-4 shadow-xl md:mt-0 md:w-[340px] dark:bg-slate-800"
     >
-      <div class="flex h-20 w-full items-center">
-        <span>当前选手：</span>
-        <div class="h-20 w-20">
-          <app-player-cell [player]="currentPlayer()"></app-player-cell>
-        </div>
-      </div>
-      <div class="my-5 flex w-full flex-col items-start justify-start">
-        <div>当前局势：</div>
-        <div class="flex h-6 w-4/5 items-center justify-evenly">
-          <span>{{ redCount() }}</span>
-          <span>{{ blueCount() }}</span>
-        </div>
-        <div class="h-6 w-4/5 rounded-full bg-blue-600 dark:bg-blue-500">
+      <div class="space-y-4">
+        <!-- 玩家信息 -->
+        <div class="space-y-4">
           <div
-            class="h-6 rounded-l-full bg-red-600 dark:bg-red-500"
-            [ngStyle]="{ width: redPrecent() + '%' }"
-          ></div>
+            class="flex items-center gap-3 rounded-xl bg-slate-100 p-3 dark:bg-slate-700/50"
+          >
+            <div class="h-10 w-10 shrink-0">
+              <app-player-cell [player]="myColor()"></app-player-cell>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div
+                class="truncate text-sm font-medium text-slate-700 dark:text-slate-200"
+              >
+                {{ myId() }}
+              </div>
+              <div class="text-xs text-emerald-600 dark:text-emerald-400">
+                You
+              </div>
+            </div>
+          </div>
+          <div
+            class="flex items-center gap-3 rounded-xl bg-slate-100 p-3 dark:bg-slate-700/50"
+          >
+            <div class="h-10 w-10 shrink-0">
+              <app-player-cell [player]="peerColor()"></app-player-cell>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div
+                class="truncate text-sm font-medium text-slate-700 dark:text-slate-200"
+              >
+                {{ peerId() }}
+              </div>
+              <div class="text-xs text-sky-600 dark:text-sky-400">Peer</div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="my-5 flex w-full items-center">
+
+        <!-- 当前回合 -->
+        <div class="rounded-xl bg-sky-100 p-3 dark:bg-slate-700">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-600 dark:text-slate-300">Current Turn</span>
+            <div class="relative flex items-center gap-2">
+              <div class="h-6 w-6">
+                <app-player-cell [player]="currentPlayer()"></app-player-cell>
+              </div>
+              <div
+                class="h-2 w-2 animate-pulse rounded-full bg-emerald-500"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 进度条 -->
+        <div class="space-y-3">
+          <div class="flex justify-between text-sm font-medium">
+            <span class="text-rose-600 dark:text-rose-400">{{
+              redCount()
+            }}</span>
+            <span class="text-sky-600 dark:text-sky-400">{{
+              blueCount()
+            }}</span>
+          </div>
+          <div
+            class="h-2.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
+          >
+            <div class="flex h-full transition-all duration-300">
+              <div
+                class="bg-rose-500 dark:bg-rose-600"
+                [ngStyle]="{ width: redPrecent() + '%' }"
+              ></div>
+              <div
+                class="bg-sky-500 dark:bg-sky-600"
+                [ngStyle]="{ width: bluePrecent() + '%' }"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 操作按钮 -->
         <button
           (click)="resetBoard()"
-          type="button"
-          class="me-2 mb-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          class="w-full rounded-xl bg-gradient-to-br from-emerald-500 to-sky-500 px-4 py-3 text-sm font-semibold text-white shadow-md transition-transform hover:scale-[1.02] hover:shadow-lg focus:outline-none"
         >
-          重玩游戏
+          Restart Game
         </button>
       </div>
     </div>
   </div>
+
+  <!-- 获胜弹窗 -->
   <div
     *ngIf="winner() !== null"
-    class="bg-opacity-50 dark:bg-opacity-50 absolute top-0 left-0 flex h-full w-full flex-col items-center justify-center bg-red-300 backdrop-blur dark:bg-gray-800"
+    class="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm"
   >
-    @if (winner() == myId()) {
-      <span class="text-3xl">🎉🎉🎉</span>
-      <div class="h-32 w-32">
-        <app-player-cell [player]="CellColor.RED"></app-player-cell>
-      </div>
-      <span class="text-4xl dark:text-gray-200">获胜</span>
-    } @else if (winner() == peerId()) {
-      <span class="text-3xl">🎉🎉🎉 </span>
-      <div class="h-32 w-32">
-        <app-player-cell [player]="CellColor.BLUE"></app-player-cell>
-      </div>
-      <span class="text-4xl dark:text-gray-200">获胜</span>
-    } @else if (winner() == "") {
-      <div class="text-4xl">👍旗鼓相当👍</div>
-    }
-    <button
-      (click)="resetBoard()"
-      type="button"
-      class="me-2 mt-10 mb-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+    <div
+      class="w-full max-w-xs rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800"
     >
-      重玩游戏
-    </button>
+      <div class="mb-4 text-center">
+        <div class="mx-auto mb-4 text-4xl">🎉</div>
+        @if (winner() == myId()) {
+          <div class="mx-auto mb-4 h-16 w-16">
+            <app-player-cell [player]="CellColor.RED"></app-player-cell>
+          </div>
+          <h3 class="mb-2 text-xl font-bold text-slate-800 dark:text-white">
+            Victory!
+          </h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300">
+            Congratulations!
+          </p>
+        } @else if (winner() == peerId()) {
+          <div class="mx-auto mb-4 h-16 w-16">
+            <app-player-cell [player]="CellColor.BLUE"></app-player-cell>
+          </div>
+          <h3 class="mb-2 text-xl font-bold text-slate-800 dark:text-white">
+            Peer Wins
+          </h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300">
+            Better luck next time!
+          </p>
+        } @else {
+          <div class="mx-auto mb-4 flex justify-center gap-2">
+            <div class="h-16 w-16">
+              <app-player-cell [player]="CellColor.RED"></app-player-cell>
+            </div>
+            <div class="h-16 w-16">
+              <app-player-cell [player]="CellColor.BLUE"></app-player-cell>
+            </div>
+          </div>
+          <h3 class="mb-2 text-xl font-bold text-slate-800 dark:text-white">
+            It's a Draw!
+          </h3>
+        }
+      </div>
+      <button
+        (click)="resetBoard()"
+        class="mt-4 w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-emerald-700"
+      >
+        Play Again
+      </button>
+    </div>
   </div>
-  <audio
-    #clickPlayer
-    src="assets/audio/hexxagon/click.mp3"
-    class="hidden"
-  ></audio>
-  <audio
-    #movePlayer
-    src="assets/audio/hexxagon/move.mp3"
-    class="hidden"
-  ></audio>
-  <audio
-    #winnerPlayer
-    src="assets/audio/hexxagon/winner.mp3"
-    class="hidden"
-  ></audio>
 </main>
