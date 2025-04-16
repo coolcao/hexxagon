@@ -33,7 +33,7 @@ export class HexxagonService {
   }
 
   // 临近两层的格子
-  move(actionOperation: ActionOperation): BoardCell[][] {
+  jump(actionOperation: ActionOperation): BoardCell[][] {
     const { cells, fromId, toId, color } = actionOperation;
     const fromCell = cells.flat().find(cell => cell.id === fromId);
     const toCell = cells.flat().find(cell => cell.id === toId);

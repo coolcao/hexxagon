@@ -14,7 +14,7 @@ export interface BoardCell {
 }
 
 export interface ActionOperation {
-  action: 'move' | 'copy';
+  action: 'jump' | 'copy';
   cells: BoardCell[][];
   fromId: number;
   toId: number;
@@ -25,6 +25,12 @@ export interface RoomInfo {
   roomName: string;
 }
 
+export interface MoveEventData {
+  action: 'select' | 'copy' | 'jump';
+  fromId: number;
+  toId: number;
+  color: CellColor;
+}
 
 export enum PeerEventType {
   ROOM_INFO = 'room-info',

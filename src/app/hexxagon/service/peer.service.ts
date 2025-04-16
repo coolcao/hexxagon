@@ -1,10 +1,11 @@
 import { inject, Injectable } from "@angular/core";
 import Peer, { DataConnection } from 'peerjs';
-import { CellColor, PeerDataEvent, PeerEventType, RoomInfo } from "../hexxagon.type";
+import { CellColor, GameState, MoveEventData, PeerDataEvent, PeerEventType, PlayerState, RoomInfo } from "../hexxagon.type";
 import { HexxagonStore } from "../store/hexxagon.store";
 import { MyStore } from "../store/my.store";
 import { PeerStore } from "../store/peer.store";
 import { AlertService } from "../../share/alert/alert.service";
+import { HexxagonService } from "./hexxagon.service";
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,7 @@ export class PeerService {
   private peer: Peer | null = null;
   private conn: DataConnection | null = null;
   private alert = inject(AlertService);
+  private service = inject(HexxagonService)
 
   constructor() {
     this.initPeer();
@@ -54,6 +56,7 @@ export class PeerService {
         const peerId = conn.peer;
         this.peerStore.setId(peerId);
         this.peerStore.setColor(this.store.isHost() ? CellColor.BLUE : CellColor.RED);
+        this.store.setGameState(GameState.PEER_CONNECTED);
         if (this.store.isHost()) {
           this.sendSyncState();
           this.alert.success(`对方[${peerId}]已加入，开始畅聊吧！`);
@@ -103,6 +106,50 @@ export class PeerService {
     },
   };
 
+  private handleMoveEvent(data: MoveEventData) {
+    // TODO 处理移动事件
+    console.log('收到移动事件', data);
+    if (data.action === 'select') {
+      // 选中棋子
+      this.store.setClickedCell(data.fromId);
+      return;
+    }
+    if (data.action === 'copy') {
+      // 复制棋子
+      const cells = this.service.copy({
+        action: 'copy',
+        fromId: data.fromId,
+        toId: data.toId,
+        color: data.color,
+        cells: this.store.cells(),
+      });
+      this.store.setCells(cells);
+      this.store.infect(data.toId);
+      this.store.nextPlayer();
+      this.store.resetClickedCell();
+      return;
+    }
+    if (data.action === 'jump') {
+      // 跳跃棋子
+      const cells = this.service.jump({
+        action: 'jump',
+        fromId: data.fromId,
+        toId: data.toId,
+        color: data.color,
+        cells: this.store.cells(),
+      });
+      this.store.setCells(cells);
+      this.store.infect(data.toId);
+      this.store.nextPlayer();
+      this.store.resetClickedCell();
+
+      return;
+    }
+
+  }
+  private handleReady() {
+    this.peerStore.setPlayerState(PlayerState.READY);
+  }
   private handleSyncRoomInfo(data: RoomInfo) {
     const { roomName } = data;
     this.store.setRoomName(roomName);
@@ -111,13 +158,20 @@ export class PeerService {
 
   private peerDataEventHandlers = {
     [PeerEventType.ROOM_INFO]: (data: RoomInfo) => this.handleSyncRoomInfo(data),
-    [PeerEventType.READY]: () => {
-    },
-    [PeerEventType.MOVE]: () => {
-    },
+    [PeerEventType.READY]: () => this.handleReady,
+    [PeerEventType.MOVE]: (data: MoveEventData) => this.handleMoveEvent(data),
 
   };
 
+  // 发送Ready事件
+  sendReady() {
+    const event: PeerDataEvent<null> = {
+      event: PeerEventType.READY,
+      data: null,
+    }
+    this.send(event);
+  }
+  // 发送同步状态
   sendSyncState() {
     // 发送房间信息
     const roomInfo: PeerDataEvent<RoomInfo> = {
@@ -127,6 +181,13 @@ export class PeerService {
       }
     }
     this.send(roomInfo);
+  }
+  sendMove(data: MoveEventData) {
+    const event: PeerDataEvent<MoveEventData> = {
+      event: PeerEventType.MOVE,
+      data,
+    };
+    this.send(event);
   }
   send<T>(data: PeerDataEvent<T>) {
     if (!this.conn) {

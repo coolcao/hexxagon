@@ -331,4 +331,74 @@ export class HexxagonStore {
     this._roomName.set(roomName);
   }
 
+  setClickedCell(id: number) {
+    // 设置第一次点击的ID
+    this.setClickedId(id);
+    // 高亮被点击的cell的相邻cell
+    const first = this.first.get(id);
+    const second = this.second.get(id);
+    const clickedFirst = [], clickedSecond = [];
+    for (const cell of this.cells()) {
+      for (const c of cell) {
+        // 选中当前点击的单元格
+        if (c.id === id) {
+          c.selected = true;
+        } else {
+          c.selected = false;
+        }
+        // 标记相邻单元格
+        if (first?.includes(c.id)) {
+          c.first = true;
+          clickedFirst.push(c.id);
+        } else {
+          c.first = false;
+        }
+        if (second?.includes(c.id)) {
+          clickedSecond.push(c.id);
+          c.second = true;
+        } else {
+          c.second = false;
+        }
+        this.updateCellById(c.id, c);
+      }
+    }
+    this.setClickedFirst(clickedFirst);
+    this.setClickedSecond(clickedSecond);
+  }
+  resetClickedCell() {
+    this.setClickedId(0);
+    this.setClickedFirst([]);
+    this.setClickedSecond([]);
+    this.setClickStep(ClickStep.SELECT);
+    for (const arr of this.cells()) {
+      for (const cell of arr) {
+        cell.first = false;
+        cell.second = false;
+        cell.selected = false;
+
+        this.updateCellById(cell.id, cell);
+      }
+    }
+  }
+  infect(id: number) {
+    const first = this.first.get(id);
+    if (!first) {
+      return;
+    }
+    for (const f of first) {
+      const cell = this.getCellById(f);
+      if (!cell) {
+        continue;
+      }
+      const player = this.currentPlayer();
+      if (cell.color) {
+        cell.color = player;
+        this.updateCellById(f, cell);
+      }
+    }
+  }
+  nextPlayer() {
+    this.setCurrentPlayer(this.currentPlayer() == CellColor.RED ? CellColor.BLUE : CellColor.RED);
+  }
+
 }

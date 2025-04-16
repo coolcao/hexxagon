@@ -1,9 +1,11 @@
 import { Component, effect, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { HexxagonStore } from '../store/hexxagon.store';
-import { CellColor, ClickStep } from '../hexxagon.type';
+import { CellColor, ClickStep, MoveEventData } from '../hexxagon.type';
 import { MyStore } from '../store/my.store';
 import { HexxagonService } from '../service/hexxagon.service';
 import { PeerStore } from '../store/peer.store';
+import { PeerService } from '../service/peer.service';
 @Component({
   selector: 'app-hexxagon-board',
   standalone: false,
@@ -11,14 +13,16 @@ import { PeerStore } from '../store/peer.store';
   templateUrl: './hexxagon-board.component.html',
   styleUrl: './hexxagon-board.component.less'
 })
-export class HexxagonBoardComponent {
+export class HexxagonBoardComponent implements OnInit {
 
   CellColor = CellColor;
 
+  private readonly router = inject(Router);
   private readonly store: HexxagonStore = inject(HexxagonStore);
   private readonly myStore: MyStore = inject(MyStore);
   private readonly peerStore: PeerStore = inject(PeerStore);
   private readonly hexxagonService = inject(HexxagonService);
+  private readonly peerService = inject(PeerService);
 
   @ViewChild('clickPlayer') clickPlayer!: ElementRef<HTMLAudioElement>;
   @ViewChild('movePlayer') movePlayer!: ElementRef<HTMLAudioElement>;
@@ -51,6 +55,9 @@ export class HexxagonBoardComponent {
   }
 
   ngOnInit(): void {
+    if (this.store.isHost() === null) {
+      this.router.navigate(['/', 'start']);
+    }
   }
 
   clickCell(id: number) {
@@ -73,8 +80,17 @@ export class HexxagonBoardComponent {
         console.log('只能选中自己的棋子');
         return;
       }
+
+      const operation: MoveEventData = {
+        action: 'select',
+        fromId: id,
+        toId: 0,
+        color: this.currentPlayer(),
+      };
+      this.peerService.sendMove(operation);
+
       this.playClick();
-      this.setClickedCell(id);
+      this.store.setClickedCell(id);
       this.store.nextStep();
       return;
 
@@ -83,12 +99,12 @@ export class HexxagonBoardComponent {
 
       // 如果点击是同一个单元，取消选中
       if (this.store.clickedId() === id) {
-        this.resetClickedCell();
+        this.store.resetClickedCell();
         return;
       }
 
       if (cell.color == this.currentPlayer()) {
-        this.setClickedCell(id);
+        this.store.setClickedCell(id);
         return;
       }
 
@@ -99,6 +115,13 @@ export class HexxagonBoardComponent {
       }
 
       if (this.store.clickedFirst().includes(id)) {
+        const operation: MoveEventData = {
+          action: 'copy',
+          fromId: this.store.clickedId(),
+          toId: id,
+          color: this.currentPlayer(),
+        };
+        this.peerService.sendMove(operation);
         // this.copy(this.store.clickedId(), id);
         const cells = this.hexxagonService.copy({
           action: 'copy',
@@ -109,17 +132,24 @@ export class HexxagonBoardComponent {
         });
 
         this.store.setCells(cells);
-        this.resetClickedCell();
-        this.infect(id);
-        this.nextPlayer();
+        this.store.resetClickedCell();
+        this.store.infect(id);
+        this.store.nextPlayer();
         this.playMove();
         return;
       }
 
       if (this.store.clickedSecond().includes(id)) {
+        const operation: MoveEventData = {
+          action: 'jump',
+          fromId: this.store.clickedId(),
+          toId: id,
+          color: this.currentPlayer(),
+        };
+        this.peerService.sendMove(operation);
         // this.move(this.store.clickedId(), id);
-        const cells = this.hexxagonService.move({
-          action: 'move',
+        const cells = this.hexxagonService.jump({
+          action: 'jump',
           fromId: this.store.clickedId(),
           toId: id,
           cells: this.store.cells(),
@@ -127,9 +157,9 @@ export class HexxagonBoardComponent {
         });
 
         this.store.setCells(cells);
-        this.resetClickedCell();
-        this.infect(id);
-        this.nextPlayer();
+        this.store.resetClickedCell();
+        this.store.infect(id);
+        this.store.nextPlayer();
         this.playMove();
         return;
       }
@@ -137,60 +167,6 @@ export class HexxagonBoardComponent {
     }
 
     console.log(id);
-  }
-
-
-  // 设置第一次被点击的cell
-  setClickedCell(id: number) {
-    // 设置第一次点击的ID
-    this.store.setClickedId(id);
-    // 高亮被点击的cell的相邻cell
-    const first = this.store.first.get(id);
-    const second = this.store.second.get(id);
-    const clickedFirst = [], clickedSecond = [];
-    for (const cell of this.cells()) {
-      for (const c of cell) {
-        // 选中当前点击的单元格
-        if (c.id === id) {
-          c.selected = true;
-        } else {
-          c.selected = false;
-        }
-        // 标记相邻单元格
-        if (first?.includes(c.id)) {
-          c.first = true;
-          clickedFirst.push(c.id);
-        } else {
-          c.first = false;
-        }
-        if (second?.includes(c.id)) {
-          clickedSecond.push(c.id);
-          c.second = true;
-        } else {
-          c.second = false;
-        }
-        this.store.updateCellById(c.id, c);
-      }
-    }
-    this.store.setClickedFirst(clickedFirst);
-    this.store.setClickedSecond(clickedSecond);
-  }
-
-  // 重置被点击的cell，取消相邻cell的高亮
-  resetClickedCell() {
-    this.store.setClickedId(0);
-    this.store.setClickedFirst([]);
-    this.store.setClickedSecond([]);
-    this.store.setClickStep(ClickStep.SELECT);
-    for (const arr of this.store.cells()) {
-      for (const cell of arr) {
-        cell.first = false;
-        cell.second = false;
-        cell.selected = false;
-
-        this.store.updateCellById(cell.id, cell);
-      }
-    }
   }
 
   resetBoard() {
@@ -239,27 +215,9 @@ export class HexxagonBoardComponent {
 
   }
 
-  nextPlayer() {
-    this.store.setCurrentPlayer(this.store.currentPlayer() == CellColor.RED ? CellColor.BLUE : CellColor.RED);
-  }
 
-  infect(id: number) {
-    const first = this.store.first.get(id);
-    if (!first) {
-      return;
-    }
-    for (const f of first) {
-      const cell = this.store.getCellById(f);
-      if (!cell) {
-        continue;
-      }
-      const player = this.store.currentPlayer();
-      if (cell.color) {
-        cell.color = player;
-        this.store.updateCellById(f, cell);
-      }
-    }
-  }
+
+
 
   playClick() {
     this.clickPlayer.nativeElement.play();
