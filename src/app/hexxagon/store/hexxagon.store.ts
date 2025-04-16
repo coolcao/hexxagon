@@ -33,22 +33,30 @@ export class HexxagonStore {
 
   private _gameState = signal(GameState.INITIAL);
   private _isHost = signal(false);
+  private _roomName = signal('');
+  private _currentPlayer = signal<CellColor>(CellColor.RED);
+  private _clickedId = signal<number>(0);
+  private _clickStep = signal<ClickStep>(ClickStep.SELECT);
+  private _clickedFirst = signal<number[]>([]);
+  private _clickedSecond = signal<number[]>([]);
+  private _cells = signal<BoardCell[][]>(initCells.map(row => row.map(cell => ({ ...cell }))));
 
   readonly gameState = this._gameState.asReadonly();
   readonly isHost = this._isHost.asReadonly();
+  readonly roomName = this._roomName.asReadonly();
 
   // 标记当前出招的玩家
-  currentPlayer = signal<CellColor>(CellColor.RED);
+  currentPlayer = this._currentPlayer.asReadonly();
   // 标记第一次被点击的ID
-  clickedId = signal<number>(0);
+  clickedId = this._clickedId.asReadonly();
 
-  clickStep = signal<ClickStep>(ClickStep.SELECT);
+  clickStep = this._clickStep.asReadonly();
 
   // 标记第一次被点击的cell的相邻cell
-  clickedFirst = signal<number[]>([]);
-  clickedSecond = signal<number[]>([]);
+  clickedFirst = this._clickedFirst.asReadonly();
+  clickedSecond = this._clickedSecond.asReadonly();
 
-  cells = signal<BoardCell[][]>(initCells.map(row => row.map(cell => ({ ...cell }))));
+  cells = this._cells.asReadonly();
 
   redCount = computed(() => {
     let count = 0;
@@ -252,17 +260,34 @@ export class HexxagonStore {
 
   // 初始化游戏状态
   initState() {
-    this.clickedId.set(0);
-    this.clickedFirst.set([]);
-    this.clickedSecond.set([]);
-    this.currentPlayer.set(CellColor.RED);
-    this.cells.set(initCells.map(row => row.map(cell => ({ ...cell }))));
-    this.clickStep.set(ClickStep.SELECT);
+    this._clickedId.set(0);
+    this._clickedFirst.set([]);
+    this._clickedSecond.set([]);
+    this._currentPlayer.set(CellColor.RED);
+    this._cells.set(initCells.map(row => row.map(cell => ({ ...cell }))));
+    this._clickStep.set(ClickStep.SELECT);
+  }
+
+  setCurrentPlayer(color: CellColor) {
+    this._currentPlayer.set(color);
+  }
+  setClickedFirst(ids: number[]) {
+    this._clickedFirst.set(ids);
+  }
+  setClickedSecond(ids: number[]) {
+    this._clickedSecond.set(ids);
+  }
+  setClickStep(step: ClickStep) {
+    this._clickStep.set(step);
+  }
+  setCells(cells: BoardCell[][]) {
+    this._cells.set(cells);
   }
 
 
+
   nextStep() {
-    this.clickStep.set(this.clickStep() == ClickStep.SELECT ? ClickStep.MOVE : ClickStep.SELECT);
+    this._clickStep.set(this.clickStep() == ClickStep.SELECT ? ClickStep.MOVE : ClickStep.SELECT);
   }
 
   getCellById(id: number) {
@@ -286,11 +311,11 @@ export class HexxagonStore {
         return c;
       });
     });
-    this.cells.set(updatedCells);
+    this._cells.set(updatedCells);
   }
 
   setClickedId(id: number) {
-    this.clickedId.set(id);
+    this._clickedId.set(id);
   }
 
 
@@ -301,6 +326,9 @@ export class HexxagonStore {
 
   setIsHost(isHost: boolean) {
     this._isHost.set(isHost);
+  }
+  setRoomName(roomName: string) {
+    this._roomName.set(roomName);
   }
 
 }

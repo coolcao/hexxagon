@@ -108,7 +108,7 @@ export class HexxagonBoardComponent {
           color: this.currentPlayer(),
         });
 
-        this.store.cells.set(cells);
+        this.store.setCells(cells);
         this.resetClickedCell();
         this.infect(id);
         this.nextPlayer();
@@ -126,7 +126,7 @@ export class HexxagonBoardComponent {
           color: this.currentPlayer(),
         });
 
-        this.store.cells.set(cells);
+        this.store.setCells(cells);
         this.resetClickedCell();
         this.infect(id);
         this.nextPlayer();
@@ -172,16 +172,16 @@ export class HexxagonBoardComponent {
         this.store.updateCellById(c.id, c);
       }
     }
-    this.store.clickedFirst.set(clickedFirst);
-    this.store.clickedSecond.set(clickedSecond);
+    this.store.setClickedFirst(clickedFirst);
+    this.store.setClickedSecond(clickedSecond);
   }
 
   // 重置被点击的cell，取消相邻cell的高亮
   resetClickedCell() {
-    this.store.clickedId.set(0);
-    this.store.clickedFirst.set([]);
-    this.store.clickedSecond.set([]);
-    this.store.clickStep.set(ClickStep.SELECT);
+    this.store.setClickedId(0);
+    this.store.setClickedFirst([]);
+    this.store.setClickedSecond([]);
+    this.store.setClickStep(ClickStep.SELECT);
     for (const arr of this.store.cells()) {
       for (const cell of arr) {
         cell.first = false;
@@ -240,7 +240,7 @@ export class HexxagonBoardComponent {
   }
 
   nextPlayer() {
-    this.store.currentPlayer.set(this.store.currentPlayer() == CellColor.RED ? CellColor.BLUE : CellColor.RED);
+    this.store.setCurrentPlayer(this.store.currentPlayer() == CellColor.RED ? CellColor.BLUE : CellColor.RED);
   }
 
   infect(id: number) {

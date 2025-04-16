@@ -22,6 +22,7 @@ export interface ActionOperation {
 }
 
 export interface RoomInfo {
+  roomName: string;
 }
 
 

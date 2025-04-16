@@ -5,6 +5,7 @@ import { MyStore } from '../store/my.store';
 import { PeerStore } from '../store/peer.store';
 import { CellColor, GameState } from '../hexxagon.type';
 import { HexxagonStore } from '../store/hexxagon.store';
+import { PeerService } from '../service/peer.service';
 
 @Component({
   selector: 'app-start',
@@ -15,11 +16,12 @@ import { HexxagonStore } from '../store/hexxagon.store';
 })
 export class StartComponent implements OnInit {
 
-  readonly router = inject(Router);
-  readonly alert = inject(AlertService);
-  readonly store = inject(HexxagonStore);
-  readonly myStore = inject(MyStore);
-  readonly peerStore = inject(PeerStore);
+  private readonly router = inject(Router);
+  private readonly alert = inject(AlertService);
+  private readonly store = inject(HexxagonStore);
+  private readonly myStore = inject(MyStore);
+  private readonly peerStore = inject(PeerStore);
+  private readonly peerService = inject(PeerService);
 
   showJoin = false;
   peerId = '';
@@ -48,6 +50,7 @@ export class StartComponent implements OnInit {
     this.myStore.setColor(CellColor.BLUE);
 
     this.showJoin = false;
+    this.peerService.connectToPeer(this.peerId);
 
     this.router.navigate(['/', 'board']);
   }
