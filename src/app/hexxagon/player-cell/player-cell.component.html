@@ -1,15 +1,8 @@
 <span
-  class="no-select flex h-full w-full items-center justify-center bg-transparent"
-  [@showBall]="
-    player == CellColor.RED
-      ? 'red'
-      : player == CellColor.BLUE
-        ? 'blue'
-        : 'hidden'
-  "
+  class="no-select sphere flex h-full w-full items-center justify-center bg-transparent"
   [ngClass]="{
-    'red-ball': player == CellColor.RED,
-    'blue-ball': player == CellColor.BLUE,
+    red: player == CellColor.RED,
+    blue: player == CellColor.BLUE,
   }"
 >
 </span>

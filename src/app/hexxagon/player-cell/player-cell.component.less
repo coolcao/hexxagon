@@ -17,32 +17,38 @@
   /* Internet Explorer/Edge */
 }
 
-.red-ball {
+/* 基础球体样式 */
+.sphere {
   width: 60%;
   height: 60%;
-  background: radial-gradient(#ff0000, #9d0000);
-  background-size: 100% 100%;
-  background-position: 50% 50%;
-  border-radius: 40%;
-  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.5);
-}
-
-.blue-ball {
-  width: 60%;
-  height: 60%;
-  background: radial-gradient(#1e76fa, #0000ff);
-  background-size: 100% 100%;
-  background-position: 50% 50%;
   border-radius: 50%;
-  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 50px transparent;
+  animation: glow 2s ease-in-out infinite;
 }
 
-.dark {
-  .red-ball {
-    background: radial-gradient(#ff0000, #9d0000);
-  }
+/* 红色球体 */
+.sphere.red {
+  background: radial-gradient(circle at 30% 30%,
+      #fff 0%,
+      #ff8a8a 10%,
+      #ff0000 90%,
+      #800000 100%);
+}
 
-  .blue-ball {
-    background: radial-gradient(#1e76fa, #0000ff);
-  }
+/* 蓝色球体 */
+.sphere.blue {
+  background: radial-gradient(circle at 30% 30%,
+      #fff 0%,
+      #8ad3ff 10%,
+      #0066ff 90%,
+      #003380 100%);
+}
+
+/* 颜色变量定义 */
+.sphere.red {
+  --glow-color: rgba(255, 0, 0, 0.9);
+}
+
+.sphere.blue {
+  --glow-color: rgba(0, 102, 255, 0.9);
 }

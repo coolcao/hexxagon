@@ -9,13 +9,11 @@
       <div class="board flex flex-col">
         @for (items of cells(); track $index; let row = $index) {
           @for (item of items; track $index) {
+            <!-- 默认格子的底色在这设置 -->
             <div
               class="hex"
               [ngClass]="{
-                'bg-sky-50/60 dark:bg-sky-900/20':
-                  item.show && currentPlayer() === CellColor.BLUE,
-                'bg-rose-50/60 dark:bg-rose-900/20':
-                  item.show && currentPlayer() === CellColor.RED,
+                'bg-sky-100 dark:bg-teal-50': item.show,
               }"
             >
               <div

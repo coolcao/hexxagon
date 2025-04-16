@@ -31,7 +31,7 @@ export class CellComponent {
 
     // 隐藏单元格
     if (!this.cell || !this.cell.show) {
-      return 'dark:bg-gray-800 bg-white';
+      return 'bg-transparent';
     }
 
     // 当前已被选中的单元格
@@ -48,7 +48,7 @@ export class CellComponent {
       return 'bg-green-400 dark:bg-green-200';
     }
     // 默认样式
-    return 'bg-purple-500 dark:bg-gray-300';
+    return 'bg-gray-400/70 dark:bg-gray-400/70';
   }
 
 }
