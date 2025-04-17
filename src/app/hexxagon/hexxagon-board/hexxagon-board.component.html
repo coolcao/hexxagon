@@ -4,12 +4,12 @@
   <div class="flex h-full w-full max-w-7xl flex-col md:flex-row md:gap-6">
     <!-- 左侧棋盘区域 -->
     <div
-      class="relative flex flex-1 items-center justify-center rounded-2xl bg-white p-2 shadow-xl md:p-4 dark:bg-slate-800"
+      class="relative flex flex-1 items-center justify-center rounded-2xl bg-white/20 p-2 shadow-xl md:p-4 dark:bg-slate-800/20"
     >
       <!-- 遮罩层 -->
       <div
         *ngIf="gameState() != GameState.STARTED"
-        class="absolute top-0 left-0 z-10 flex h-full w-full items-center justify-center rounded-2xl bg-gray-100/80 backdrop-blur-2xl dark:bg-gray-800/80"
+        class="absolute top-0 left-0 z-10 flex h-full w-full items-center justify-center rounded-2xl bg-gray-200/80 backdrop-blur-2xl dark:bg-gray-800/80"
       >
         @if (gameState() == GameState.INITIAL) {
           <div class="text-gray-800 dark:text-gray-200">
@@ -21,12 +21,13 @@
             <div class="text-slate-600 dark:text-slate-300">
               请复制下面ID给好友，邀请好友一起来玩吧
             </div>
-            <div
-              class="mt-2 cursor-pointer rounded-md bg-gray-200 p-2 text-sm text-sky-300 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500"
+            <button
+              (click)="copyToClipboard()"
+              class="mt-2 cursor-pointer rounded-md bg-gray-200 p-2 text-sm text-sky-400 hover:text-sky-300 dark:bg-gray-600 dark:text-sky-300 dark:hover:bg-gray-500"
             >
               {{ myId() }}
               <i class="fa-solid fa-copy mx-2"></i>
-            </div>
+            </button>
           </div>
         }
         @if (gameState() == GameState.PEER_CONNECTED) {
@@ -59,16 +60,14 @@
             <div
               class="hex"
               [ngClass]="{
-                'bg-sky-100 dark:bg-teal-50': item.show,
+                'bg-cyan-200/70 dark:bg-slate-700': item.show,
               }"
             >
-              <div
-                class="hex-inner transition-all duration-200 hover:scale-[1.08]"
-              >
+              <div class="hex-inner transition-all">
                 <app-cell
                   [cell]="item"
                   (onClick)="clickCell($event)"
-                  class="cursor-pointer hover:brightness-105"
+                  class="cursor-pointer duration-200 hover:scale-[1.2] hover:brightness-105"
                 ></app-cell>
               </div>
             </div>
@@ -79,7 +78,7 @@
 
     <!-- 右侧信息面板 -->
     <div
-      class="mt-4 w-full rounded-2xl bg-white p-4 shadow-xl md:mt-0 md:w-[340px] dark:bg-slate-800"
+      class="mt-4 w-full rounded-2xl bg-white/20 p-4 shadow-xl md:mt-0 md:w-[340px] dark:bg-slate-800/20"
     >
       <div class="space-y-4">
         <!-- 房间信息 -->
@@ -101,11 +100,6 @@
               <app-player-cell [player]="myColor()"></app-player-cell>
             </div>
             <div class="min-w-0 flex-1">
-              <div
-                class="truncate text-xs font-medium text-slate-700 dark:text-slate-200"
-              >
-                {{ myId() }}
-              </div>
               <div class="text-sm text-emerald-600 dark:text-emerald-400">
                 我方
               </div>
@@ -118,11 +112,6 @@
               <app-player-cell [player]="peerColor()"></app-player-cell>
             </div>
             <div class="min-w-0 flex-1">
-              <div
-                class="truncate text-xs font-medium text-slate-700 dark:text-slate-200"
-              >
-                {{ peerId() }}
-              </div>
               <div class="text-sm text-sky-600 dark:text-sky-400">对方</div>
             </div>
           </div>
@@ -131,9 +120,9 @@
         <!-- 当前回合 -->
         <div class="rounded-xl bg-sky-100 p-3 dark:bg-slate-700">
           <div class="flex items-center justify-between text-sm">
-            <span class="text-slate-600 dark:text-slate-300">Current Turn</span>
+            <span class="text-lime-600 dark:text-lime-400">当前轮到：</span>
             <div class="relative flex items-center gap-2">
-              <div class="h-6 w-6">
+              <div class="h-10 w-10">
                 <app-player-cell [player]="currentPlayer()"></app-player-cell>
               </div>
               <div

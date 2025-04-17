@@ -26,7 +26,7 @@ export interface RoomInfo {
 }
 
 export interface MoveEventData {
-  action: 'select' | 'copy' | 'jump';
+  action: 'select' | 'unselect' | 'copy' | 'jump';
   fromId: number;
   toId: number;
   color: CellColor;

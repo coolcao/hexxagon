@@ -7,6 +7,7 @@ import { MyStore } from '../store/my.store';
 import { HexxagonService } from '../service/hexxagon.service';
 import { PeerStore } from '../store/peer.store';
 import { PeerService } from '../service/peer.service';
+import { AlertService } from '../../share/alert/alert.service';
 @Component({
   selector: 'app-hexxagon-board',
   standalone: false,
@@ -26,6 +27,7 @@ export class HexxagonBoardComponent implements OnInit {
   private readonly peerStore: PeerStore = inject(PeerStore);
   private readonly hexxagonService = inject(HexxagonService);
   private readonly peerService = inject(PeerService);
+  private readonly alert = inject(AlertService);
 
   @ViewChild('clickPlayer') clickPlayer!: ElementRef<HTMLAudioElement>;
   @ViewChild('movePlayer') movePlayer!: ElementRef<HTMLAudioElement>;
@@ -136,11 +138,23 @@ export class HexxagonBoardComponent implements OnInit {
 
       // 如果点击是同一个单元，取消选中
       if (this.store.clickedId() === id) {
+        this.peerService.sendMove({
+          action: 'unselect',
+          fromId: id,
+          toId: 0,
+          color: this.currentPlayer(),
+        });
         this.store.resetClickedCell();
         return;
       }
 
       if (cell.color == this.currentPlayer()) {
+        this.peerService.sendMove({
+          action: 'select',
+          fromId: id,
+          toId: 0,
+          color: this.currentPlayer(),
+        });
         this.store.setClickedCell(id);
         return;
       }
@@ -272,5 +286,10 @@ export class HexxagonBoardComponent implements OnInit {
     this.myStore.setPlayerState(PlayerState.READY);
   }
 
+  copyToClipboard() {
+    // 复制peerId到剪贴板
+    navigator.clipboard.writeText(this.myId() || '');
+    this.alert.success('复制成功！快发送给你的好友加入聊天室聊天吧！');
+  }
 
 }

@@ -48,7 +48,7 @@ export class CellComponent {
       return 'bg-green-400 dark:bg-green-200';
     }
     // 默认样式
-    return 'bg-gray-400/70 dark:bg-gray-400/70';
+    return 'bg-slate-400/80 dark:bg-gray-800/80';
   }
 
 }

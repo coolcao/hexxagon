@@ -116,6 +116,11 @@ export class PeerService {
       this.store.setClickedCell(data.fromId);
       return;
     }
+    if (data.action === 'unselect') {
+      // 取消选中
+      this.store.resetClickedCell();
+      return;
+    }
     if (data.action === 'copy') {
       // 复制棋子
       const cells = this.service.copy({
