@@ -4,8 +4,54 @@
   <div class="flex h-full w-full max-w-7xl flex-col md:flex-row md:gap-6">
     <!-- 左侧棋盘区域 -->
     <div
-      class="flex flex-1 items-center justify-center rounded-2xl bg-white p-2 shadow-xl md:p-4 dark:bg-slate-800"
+      class="relative flex flex-1 items-center justify-center rounded-2xl bg-white p-2 shadow-xl md:p-4 dark:bg-slate-800"
     >
+      <!-- 遮罩层 -->
+      <div
+        *ngIf="gameState() != GameState.STARTED"
+        class="absolute top-0 left-0 z-10 flex h-full w-full items-center justify-center rounded-2xl bg-gray-100/80 backdrop-blur-2xl dark:bg-gray-800/80"
+      >
+        @if (gameState() == GameState.INITIAL) {
+          <div class="text-gray-800 dark:text-gray-200">
+            请稍等，正在初始化客户端...
+          </div>
+        }
+        @if (gameState() == GameState.WAITING) {
+          <div class="flex flex-col items-center justify-center">
+            <div class="text-slate-600 dark:text-slate-300">
+              请复制下面ID给好友，邀请好友一起来玩吧
+            </div>
+            <div
+              class="mt-2 cursor-pointer rounded-md bg-gray-200 p-2 text-sm text-sky-300 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500"
+            >
+              {{ myId() }}
+              <i class="fa-solid fa-copy mx-2"></i>
+            </div>
+          </div>
+        }
+        @if (gameState() == GameState.PEER_CONNECTED) {
+          <div class="flex flex-col items-center justify-center">
+            <div class="text-slate-600 dark:text-slate-300">
+              双方已连接，点击“我已准备好”开始游戏！
+            </div>
+            <button
+              [disabled]="myState() == PlayerState.READY"
+              (click)="ready()"
+              type="button"
+              class="mt-10 w-full cursor-pointer rounded-xl bg-gradient-to-br from-emerald-500 to-sky-500 px-4 py-3 text-sm font-semibold text-white shadow-md transition-transform hover:scale-[1.02] hover:shadow-lg focus:outline-none disabled:cursor-not-allowed disabled:from-emerald-400 disabled:to-sky-300"
+            >
+              👌我已准备好👌
+            </button>
+          </div>
+        }
+        @if (gameState() == GameState.READY) {
+          <div class="flex flex-col items-center justify-center">
+            <div class="text-slate-600 dark:text-slate-300">
+              双方已就绪，{{ countdown }}秒后开始游戏...
+            </div>
+          </div>
+        }
+      </div>
       <div class="board flex flex-col">
         @for (items of cells(); track $index; let row = $index) {
           @for (item of items; track $index) {
@@ -36,6 +82,16 @@
       class="mt-4 w-full rounded-2xl bg-white p-4 shadow-xl md:mt-0 md:w-[340px] dark:bg-slate-800"
     >
       <div class="space-y-4">
+        <!-- 房间信息 -->
+        <div class="my-4 flex items-center justify-center">
+          <span class="text-base text-gray-600 dark:text-gray-300"
+            >房间名称：</span
+          >
+          <span
+            class="rounded-md bg-gray-200 p-1 text-sm text-teal-500 dark:bg-gray-600 dark:text-teal-300"
+            >{{ roomName() ? roomName() : "未指定名称" }}</span
+          >
+        </div>
         <!-- 玩家信息 -->
         <div class="space-y-4">
           <div
@@ -46,12 +102,12 @@
             </div>
             <div class="min-w-0 flex-1">
               <div
-                class="truncate text-sm font-medium text-slate-700 dark:text-slate-200"
+                class="truncate text-xs font-medium text-slate-700 dark:text-slate-200"
               >
                 {{ myId() }}
               </div>
-              <div class="text-xs text-emerald-600 dark:text-emerald-400">
-                You
+              <div class="text-sm text-emerald-600 dark:text-emerald-400">
+                我方
               </div>
             </div>
           </div>
@@ -63,11 +119,11 @@
             </div>
             <div class="min-w-0 flex-1">
               <div
-                class="truncate text-sm font-medium text-slate-700 dark:text-slate-200"
+                class="truncate text-xs font-medium text-slate-700 dark:text-slate-200"
               >
                 {{ peerId() }}
               </div>
-              <div class="text-xs text-sky-600 dark:text-sky-400">Peer</div>
+              <div class="text-sm text-sky-600 dark:text-sky-400">对方</div>
             </div>
           </div>
         </div>
@@ -112,14 +168,6 @@
             </div>
           </div>
         </div>
-
-        <!-- 操作按钮 -->
-        <button
-          (click)="resetBoard()"
-          class="w-full rounded-xl bg-gradient-to-br from-emerald-500 to-sky-500 px-4 py-3 text-sm font-semibold text-white shadow-md transition-transform hover:scale-[1.02] hover:shadow-lg focus:outline-none"
-        >
-          Restart Game
-        </button>
       </div>
     </div>
   </div>

@@ -1,7 +1,8 @@
 import { Component, effect, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription, timer } from 'rxjs';
 import { HexxagonStore } from '../store/hexxagon.store';
-import { CellColor, ClickStep, MoveEventData } from '../hexxagon.type';
+import { CellColor, ClickStep, GameState, MoveEventData, PlayerState } from '../hexxagon.type';
 import { MyStore } from '../store/my.store';
 import { HexxagonService } from '../service/hexxagon.service';
 import { PeerStore } from '../store/peer.store';
@@ -16,6 +17,8 @@ import { PeerService } from '../service/peer.service';
 export class HexxagonBoardComponent implements OnInit {
 
   CellColor = CellColor;
+  GameState = GameState;
+  PlayerState = PlayerState;
 
   private readonly router = inject(Router);
   private readonly store: HexxagonStore = inject(HexxagonStore);
@@ -36,21 +39,55 @@ export class HexxagonBoardComponent implements OnInit {
 
   myId = this.myStore.id;
   myColor = this.myStore.color;
+  myState = this.myStore.playerState;
   peerId = this.peerStore.id;
   peerColor = this.peerStore.color;
+  peerState = this.peerStore.playerState;
 
   redPrecent = this.store.redPrecent;
   bluePrecent = this.store.bluePrecent;
 
+  roomName = this.store.roomName;
+  isHost = this.store.isHost;
+  gameState = this.store.gameState;
+
+  countdown = 5;
+  countdownSub: Subscription | null = null;
+
   constructor(
   ) {
+
+    // 监听胜利者
     effect(() => {
-      if (this.winner() == this.myStore.id()) {
-        this.playWinner();
+      // 胜利者
+      const winner = this.winner();
+    });
+
+    // 当本地Peer初始化成功后，设置游戏状态为等待
+    effect(() => {
+      if (this.myId()) {
+        this.store.setGameState(GameState.WAITING);
       }
-      if (this.winner() == this.peerStore.id()) {
-        // 播放失败音乐
+    });
+
+    // 监听玩家状态，设置Ready
+    effect(() => {
+      if (this.myState() === PlayerState.READY && this.peerState() === PlayerState.READY) {
+        this.store.setGameState(GameState.READY);
+        this.countdownSub = timer(1000, 1000).subscribe(() => {
+          if (this.countdown === 0) {
+            this.store.setGameState(GameState.STARTED);
+            this.myStore.setPlayerState(PlayerState.PLAYING);
+            this.peerStore.setPlayerState(PlayerState.PLAYING);
+            if (this.countdownSub) {
+              this.countdownSub.unsubscribe();
+              this.countdownSub = null;
+            }
+          }
+          this.countdown--;
+        });
       }
+
     });
   }
 
@@ -230,6 +267,10 @@ export class HexxagonBoardComponent implements OnInit {
     this.winnerPlayer.nativeElement.play();
   }
 
+  ready() {
+    this.peerService.sendReady();
+    this.myStore.setPlayerState(PlayerState.READY);
+  }
 
 
 }

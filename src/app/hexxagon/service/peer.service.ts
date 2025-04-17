@@ -74,6 +74,8 @@ export class PeerService {
     },
     handleData: (conn: DataConnection) => {
       conn.on('data', (data: any) => {
+        console.log('收到数据：', data);
+
         // 如果data是字符串，尝试解析为JSON对象
         if (typeof data === 'string') {
           data = JSON.parse(data) as PeerDataEvent<any>;
@@ -158,7 +160,7 @@ export class PeerService {
 
   private peerDataEventHandlers = {
     [PeerEventType.ROOM_INFO]: (data: RoomInfo) => this.handleSyncRoomInfo(data),
-    [PeerEventType.READY]: () => this.handleReady,
+    [PeerEventType.READY]: () => this.handleReady(),
     [PeerEventType.MOVE]: (data: MoveEventData) => this.handleMoveEvent(data),
 
   };
