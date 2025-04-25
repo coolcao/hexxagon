@@ -61,6 +61,11 @@ export class HexxagonBoardComponent implements OnInit, OnDestroy {
     effect(() => {
       // 胜利者
       const winner = this.winner();
+      if (winner == this.myId()) {
+        this.playWinner();
+      } else if (winner == this.peerId()) {
+        this.playLose();
+      }
     });
 
     // 当本地Peer初始化成功后，设置游戏状态为等待
@@ -267,6 +272,10 @@ export class HexxagonBoardComponent implements OnInit, OnDestroy {
   async playWinner() {
     await this.audioService.preload('winner', 'assets/audio/hexxagon/winner.mp3');
     await this.audioService.play('winner');
+  }
+  async playLose() {
+    await this.audioService.preload('lose', 'assets/audio/hexxagon/lose.mp3');
+    await this.audioService.play('lose');
   }
 
   ready() {

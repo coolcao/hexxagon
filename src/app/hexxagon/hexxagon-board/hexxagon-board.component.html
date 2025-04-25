@@ -170,26 +170,26 @@
       class="w-full max-w-xs rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800"
     >
       <div class="mb-4 text-center">
-        <div class="mx-auto mb-4 text-4xl">🎉</div>
+        <div class="mx-auto mb-4 text-4xl">🕹️游戏结束🕹️</div>
         @if (winner() == myId()) {
           <div class="mx-auto mb-4 h-16 w-16">
             <app-player-cell [player]="CellColor.RED"></app-player-cell>
           </div>
           <h3 class="mb-2 text-xl font-bold text-slate-800 dark:text-white">
-            Victory!
+            恭喜获胜
           </h3>
           <p class="text-sm text-slate-600 dark:text-slate-300">
-            Congratulations!
+            🎉🎉🎉，你是这个世界的骄傲！
           </p>
         } @else if (winner() == peerId()) {
           <div class="mx-auto mb-4 h-16 w-16">
             <app-player-cell [player]="CellColor.BLUE"></app-player-cell>
           </div>
           <h3 class="mb-2 text-xl font-bold text-slate-800 dark:text-white">
-            Peer Wins
+            对方获胜
           </h3>
           <p class="text-sm text-slate-600 dark:text-slate-300">
-            Better luck next time!
+            加油💪，争取下一次一定赢！
           </p>
         } @else {
           <div class="mx-auto mb-4 flex justify-center gap-2">
@@ -201,7 +201,7 @@
             </div>
           </div>
           <h3 class="mb-2 text-xl font-bold text-slate-800 dark:text-white">
-            It's a Draw!
+            双方势均力敌
           </h3>
         }
       </div>
@@ -209,23 +209,8 @@
         (click)="resetBoard()"
         class="mt-4 w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-emerald-700"
       >
-        Play Again
+        重玩
       </button>
     </div>
   </div>
-  <audio
-    #clickPlayer
-    src="assets/audio/hexxagon/click.mp3"
-    class="hidden"
-  ></audio>
-  <audio
-    #movePlayer
-    src="assets/audio/hexxagon/move.mp3"
-    class="hidden"
-  ></audio>
-  <audio
-    #winnerPlayer
-    src="assets/audio/hexxagon/winner.mp3"
-    class="hidden"
-  ></audio>
 </main>
