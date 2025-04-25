@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription, timer } from 'rxjs';
 import { HexxagonStore } from '../store/hexxagon.store';
@@ -16,7 +16,7 @@ import { AudioService } from '../../audio.service';
   templateUrl: './hexxagon-board.component.html',
   styleUrl: './hexxagon-board.component.less'
 })
-export class HexxagonBoardComponent implements OnInit {
+export class HexxagonBoardComponent implements OnInit, OnDestroy {
 
   CellColor = CellColor;
   GameState = GameState;
@@ -97,6 +97,37 @@ export class HexxagonBoardComponent implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    if (this.countdownSub) {
+      this.countdownSub.unsubscribe();
+      this.countdownSub = null;
+    }
+  }
+
+  private handleMoveOrCopy(action: 'copy' | 'jump', toId: number) {
+    const operation: MoveEventData = {
+      action,
+      fromId: this.store.clickedId(),
+      toId,
+      color: this.currentPlayer(),
+    };
+    this.peerService.sendMove(operation);
+
+    const cells = this.hexxagonService[action]({
+      action,
+      fromId: this.store.clickedId(),
+      toId,
+      cells: this.store.cells(),
+      color: this.currentPlayer(),
+    });
+
+    this.store.setCells(cells);
+    this.store.resetClickedCell();
+    this.store.infect(toId);
+    this.store.nextPlayer();
+    this.playMove();
+  }
+
   clickCell(id: number) {
 
     // 判断是否是可点击的cell
@@ -164,52 +195,12 @@ export class HexxagonBoardComponent implements OnInit {
       }
 
       if (this.store.clickedFirst().includes(id)) {
-        const operation: MoveEventData = {
-          action: 'copy',
-          fromId: this.store.clickedId(),
-          toId: id,
-          color: this.currentPlayer(),
-        };
-        this.peerService.sendMove(operation);
-        // this.copy(this.store.clickedId(), id);
-        const cells = this.hexxagonService.copy({
-          action: 'copy',
-          fromId: this.store.clickedId(),
-          toId: id,
-          cells: this.store.cells(),
-          color: this.currentPlayer(),
-        });
-
-        this.store.setCells(cells);
-        this.store.resetClickedCell();
-        this.store.infect(id);
-        this.store.nextPlayer();
-        this.playMove();
+        this.handleMoveOrCopy('copy', id);
         return;
       }
 
       if (this.store.clickedSecond().includes(id)) {
-        const operation: MoveEventData = {
-          action: 'jump',
-          fromId: this.store.clickedId(),
-          toId: id,
-          color: this.currentPlayer(),
-        };
-        this.peerService.sendMove(operation);
-        // this.move(this.store.clickedId(), id);
-        const cells = this.hexxagonService.jump({
-          action: 'jump',
-          fromId: this.store.clickedId(),
-          toId: id,
-          cells: this.store.cells(),
-          color: this.currentPlayer(),
-        });
-
-        this.store.setCells(cells);
-        this.store.resetClickedCell();
-        this.store.infect(id);
-        this.store.nextPlayer();
-        this.playMove();
+        this.handleMoveOrCopy('jump', id);
         return;
       }
 
