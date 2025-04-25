@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, effect, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription, timer } from 'rxjs';
 import { HexxagonStore } from '../store/hexxagon.store';
@@ -8,6 +8,7 @@ import { HexxagonService } from '../service/hexxagon.service';
 import { PeerStore } from '../store/peer.store';
 import { PeerService } from '../service/peer.service';
 import { AlertService } from '../../share/alert/alert.service';
+import { AudioService } from '../../audio.service';
 @Component({
   selector: 'app-hexxagon-board',
   standalone: false,
@@ -21,6 +22,7 @@ export class HexxagonBoardComponent implements OnInit {
   GameState = GameState;
   PlayerState = PlayerState;
 
+  private readonly audioService = inject(AudioService);
   private readonly router = inject(Router);
   private readonly store: HexxagonStore = inject(HexxagonStore);
   private readonly myStore: MyStore = inject(MyStore);
@@ -28,10 +30,6 @@ export class HexxagonBoardComponent implements OnInit {
   private readonly hexxagonService = inject(HexxagonService);
   private readonly peerService = inject(PeerService);
   private readonly alert = inject(AlertService);
-
-  @ViewChild('clickPlayer') clickPlayer!: ElementRef<HTMLAudioElement>;
-  @ViewChild('movePlayer') movePlayer!: ElementRef<HTMLAudioElement>;
-  @ViewChild('winnerPlayer') winnerPlayer!: ElementRef<HTMLAudioElement>;
 
   cells = this.store.cells;
   currentPlayer = this.store.currentPlayer;
@@ -266,19 +264,18 @@ export class HexxagonBoardComponent implements OnInit {
 
   }
 
-
-
-
-
-  playClick() {
-    this.clickPlayer.nativeElement.play();
+  async playClick() {
+    await this.audioService.preload('click', 'assets/audio/hexxagon/click.mp3');
+    await this.audioService.play('click');
   }
-  playMove() {
-    this.movePlayer.nativeElement.play();
+  async playMove() {
+    await this.audioService.preload('move', 'assets/audio/hexxagon/move.mp3');
+    await this.audioService.play('move');
   }
 
-  playWinner() {
-    this.winnerPlayer.nativeElement.play();
+  async playWinner() {
+    await this.audioService.preload('winner', 'assets/audio/hexxagon/winner.mp3');
+    await this.audioService.play('winner');
   }
 
   ready() {
