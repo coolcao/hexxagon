@@ -170,7 +170,11 @@
       class="w-full max-w-xs rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800"
     >
       <div class="mb-4 text-center">
-        <div class="mx-auto mb-4 text-4xl">🕹️游戏结束🕹️</div>
+        <div
+          class="mx-auto mb-4 text-4xl font-bold text-sky-600 dark:text-sky-200"
+        >
+          🕹️游戏结束🕹️
+        </div>
         @if (winner() == myId()) {
           <div class="mx-auto mb-4 h-16 w-16">
             <app-player-cell [player]="CellColor.RED"></app-player-cell>
